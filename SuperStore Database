@@ -27,6 +27,8 @@ VALUES
     (14, 'Cutlery Set', 'Kitchen Supplies', 34.50, 40, 4.4),
     (15, 'Cozy Throw Blanket', 'Furnishings', 24.99, 100, 4.2);
 
+#Analysis:
+
 #Use a SELECT statement to order the items by price in descending order.
 SELECT item_name, price 
 FROM superstore
