@@ -57,3 +57,17 @@ SELECT artist_name, COUNT(track_name) as NumberOfSongs
 FROM BIT_DB.Spotifydata
 GROUP BY artist_name
 HAVING NumberOfSongs >= 2;
+
+#Write your own CTW with the Spotify data table. 
+#Then calculate the average popularity for the artists in the table.
+#Then, for every artist with an average popularity of 90 or above, show their name, their average popularity.
+#Then label them as a "Top Star".
+
+WITH Average_Popularity_CTE AS (
+SELECT s.artist_name, AVG(s.popularity) as Average_popularity
+FROM SpotifyData s
+GROUP BY s.artist_name
+)
+SELECT artist_name, Average_popularity, 'Top Star' as Label
+FROM Average_Popularity_CTE
+WHERE Average_popularity >=90;
