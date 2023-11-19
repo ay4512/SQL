@@ -52,7 +52,7 @@ FROM BIT_DB.Spotifydata
 ORDER BY danceability desc
 LIMIT 5;
 
-# What artists have two or more songs in data and how many do each artist have?
+# What artists have two or more songs in data and how many songs do each artist have?
 SELECT artist_name, COUNT(track_name) as NumberOfSongs
 FROM BIT_DB.Spotifydata
 GROUP BY artist_name
