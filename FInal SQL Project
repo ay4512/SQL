@@ -1,5 +1,5 @@
-#For this project, I downloade dataset called chinook. 
-#This data represents a digital emdia store and has tables with artists, albums, media tracks, invoices, and customers.
+#For this project, I download dataset called chinook. 
+#This data represents a digital media store and has tables with artists, albums, media tracks, invoices, and customers.
 #I performed analytics on this data using SQL.
 
 #Show customers (their full names, customer ID, and country) who are not in the US.
