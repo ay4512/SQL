@@ -1,0 +1,56 @@
+#In this SQL, I selected a database to query and discover the statistics of the Pokemon data and their details 
+to develop ideas and questions to utilize for a theoretical app and/or business idea.
+
+*Reference*
+SELECT*
+FROM pokemon;
+
+#What are the strongest attack pokemon type 1?
+SELECT Type_1, SUM(Attack) AS Total_Attack
+FROM pokemon 
+GROUP BY Type_1 
+HAVING Total_Attack >5000
+
+#What are the strongest defense pokemon type 1?
+SELECT Type_1, SUM(Defense) AS Total_Defense
+FROM pokemon 
+GROUP BY Type_1
+HAVING Total_Defense >4500;
+
+#What is the average health for each pokemon type 1 over 70 average HP?
+SELECT Type_1, ROUND(AVG(HP)) AS Avg_Health
+FROM pokemon
+GROUP BY Type_1
+HAVING Avg_Health >70;
+
+#What is the maximum and minimum speeds and defenses levels?
+SELECT MAX (Speed), MIN (Speed), MAX (Defense), Min (Defense)
+FROM pokemon;
+
+#What pokemon have over 100 speed levels and over 110 defense levels?
+SELECT *
+FROM pokemon 
+WHERE Speed > 100 AND Defense > 110;
+
+#What pokemon have either over 150 speed levels or 200 defense levels?
+SELECT *
+FROM pokemon 
+WHERE Speed > 150 OR Defense > 200;
+
+#What are the maximum, minimum, and averages for the Attack levels?
+SELECT MAX(Attack), MIN (Attack), AVG (Attack)
+FROM pokemon;
+
+#Using CASE, categorize the different attack levels.
+SELECT COUNT(*),
+CASE 
+WHEN Attack > 120 THEN "Powerful"
+WHEN Attack > 90 THEN "Strong"
+WHEN Attack > 60 THEN "Normal"
+ELSE "Weak"
+END AS "Attack_Strength"
+FROM pokemon
+GROUP BY "Attack_Strength";
+
+#Theoritically, with this CASE query, one could utilize the data to adjust the quantities of each attack group 
+since there needs to be a balance in the attack strengths to avoid unfair gameplay.
