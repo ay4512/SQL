@@ -88,13 +88,13 @@ SELECT * FROM S_BirthMonth;
 
 #Create an Implicit INNER JOIN between the Actors and their Hobby tables.
 SELECT * FROM Actors, A_Hobby
-WHERE Actors.Name = A_Hobby.Name
+WHERE Actors.Name = A_Hobby.Name;
 
 #Create an Explicit INNER JOIN between the Actors and their Kids tables. 
 SELECT Actors.Name, Actors.Spouse, A_Kids.Kids, Actors.Movie_Title
 FROM Actors
 JOIN A_Kids
-ON Actors.Name = A_Kids.Name
+ON Actors.Name = A_Kids.Name;
 
 #What Actors have 3 or more children?
 SELECT Actors.Name, A_Kids.Kids
@@ -118,7 +118,7 @@ ON A.Name = A_K.Name
 JOIN A_Hobby A_H
 ON A.Name = A_H.Name
 JOIN A_BirthMonth A_B
-ON A.Name = A_B.Name
+ON A.Name = A_B.Name;
 
 
 #Display all information regarding the Singers in a table.
@@ -129,7 +129,7 @@ ON S.Name = S_K.Name
 JOIN S_Hobby S_H
 ON S.Name = S_H.Name
 JOIN S_BirthMonth S_B
-ON S.Name = S_B.Name
+ON S.Name = S_B.Name;
 
 #Combine the birthmonth tables of the celebrities using UNION.
 SELECT A.Name, A.BirthMonth
