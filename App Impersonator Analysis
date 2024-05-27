@@ -1,0 +1,62 @@
+#In this SQL, I created a database using data from an app I used to play games on to show how that app would store data in a SQL database.
+Then I adjusted the database with SQL statements and did some analysis on the updated database. 
+
+CREATE TABLE App (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Gamer_Name TEXT, 
+    Score INTEGER,
+    Ranking INTEGER,
+    Date TEXT);
+INSERT INTO App (Gamer_Name, Score, Ranking, Date) VALUES ("Helpful Knave", 12223163, 1, "5/26/2024");
+INSERT INTO App (Gamer_Name, Score, Ranking, Date) VALUES ("Airygame", 9666116, 4, "5/23/2024");
+INSERT INTO App (Gamer_Name, Score, Ranking, Date) VALUES ("Mimisusu21", 9192068, 5, "5/25/2024");
+INSERT INTO App (Gamer_Name, Score, Ranking, Date) VALUES ("Petrifying Officer 220", 8352145, 7, "5/24/2024");
+INSERT INTO App (Gamer_Name, Score, Ranking, Date) VALUES ("Miss Sara Hey", 7929992, 8, "5/21/2024");
+INSERT INTO App (Gamer_Name, Score, Ranking, Date) VALUES ("Unbreenlievable", 7247061, 13, "5/19/2024");
+INSERT INTO App (Gamer_Name, Score, Ranking, Date) VALUES ("Gys", 6399505, 17, "5/10/2024");
+INSERT INTO App (Gamer_Name, Score, Ranking, Date) VALUES ("TryTea", 6081241, 26, "5/5/2024");
+INSERT INTO App (Gamer_Name, Score, Ranking, Date) VALUES ("Mihav9", 5164979, 42, "4/30/2024");
+INSERT INTO App (Gamer_Name, Score, Ranking, Date) VALUES ("Swebita", 4852933, 28, "4/30272024");
+INSERT INTO App (Gamer_Name, Score, Ranking, Date) VALUES ("Lappyzard", 3811596, 99, "3/29/2024");
+
+#REFERENCE
+SELECT* FROM App
+
+#Update Swebita Date to the correct date and format 4/27/2024.
+UPDATE App SET Date = "4/27/2024" WHERE Date = "4/30272024";
+
+#Add my data into the database.
+INSERT INTO App (Gamer_Name, Score, Ranking, Date) VALUES ("KogaDGS2", 2974544, 225, "3/3/2024");
+
+#Delete my data from the database.
+DELETE FROM App WHERE ID = 12;
+
+#Alter the App table to include a new column to the database. 
+ALTER TABLE App Add Achievements INTEGER default "unknown";
+UPDATE App SET Achievements = (7) WHERE ID = 1;
+UPDATE App SET Achievements = (152) WHERE ID = 2;
+UPDATE App SET Achievements = (35) WHERE ID = 3;
+UPDATE App SET Achievements = (41) WHERE ID = 4;
+UPDATE App SET Achievements = (375) WHERE ID = 5;
+UPDATE App SET Achievements = (158) WHERE ID = 6;
+UPDATE App SET Achievements = (272) WHERE ID = 7;
+UPDATE App SET Achievements = (209) WHERE ID = 8;
+UPDATE App SET Achievements = (8) WHERE ID = 9;
+UPDATE App SET Achievements = (221) WHERE ID = 10;
+UPDATE App SET Achievements = (109) WHERE ID = 11;
+
+#What gamer had the highest achievements and what is their ranking in the game?
+SELECT Gamer_Name, Ranking
+FROM App
+ORDER BY Achievements desc
+LIMIT 1;
+
+#Which gamers last played in April and what is their rank?
+SELECT Gamer_Name, Ranking
+FROM App
+WHERE Date LIKE "4/%";
+
+#Which gamers have more than 250 achievements and what is their scores?
+SELECT Gamer_Name, Score
+FROM App
+WHERE Achievements > 250;
