@@ -1,7 +1,6 @@
 --In this SQL, I created multiple tables with small sets for famous celebrities with facts about their lives.
 Then I analyzed the statistics of the data and merged the tables with different types of JOINs.
 
-
 CREATE TABLE Actors (
     Name TEXT, 
     Movie_Title TEXT,
