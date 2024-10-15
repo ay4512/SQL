@@ -1,4 +1,4 @@
-#This analysis utilized the following Fortune 500 dataset:
+--This analysis utilized the following Fortune 500 dataset:
 
 CREATE TABLE fortune_companies (
     company_id INTEGER PRIMARY KEY,
@@ -58,15 +58,15 @@ VALUES
     ('Company JJ', 'Manufacturing', 370.0, 3100, 1, 20, 12, 7.6),
     ('Company KK', 'Healthcare', 150.2, 3400, 0, 16, 8, 5.3);
 
-#Analysis:
+--Analysis:
 
-#What company has the most paid time off, and what is their average employee tenure?
+--What company has the most paid time off, and what is their average employee tenure?
 
 SELECT company_name, avg_employee_tenure, MAX(paid_time_off_days)
 FROM fortune_companies
 ;
 
-#Which companies have at least 22 paid time off days and at least 10 maternity leave weeks?
+--Which companies have at least 22 paid time off days and at least 10 maternity leave weeks?
 
 SELECT company_name, paid_time_off_days, maternity_leave_weeks
 FROM fortune_companies
@@ -74,14 +74,14 @@ WHERE paid_time_off_days>=22
 AND maternity_leave_weeks>=10
 ;
 
-#Which company in the techonology industry has the highest revenue, and what's their revenue and amount of employees working there?
+--Which company in the techonology industry has the highest revenue, and what's their revenue and amount of employees working there?
 
 SELECT company_name, employees, MAX(revenue) as 'largest revenue'
 FROM fortune_companies
 WHERE industry = 'Technology'
 ;
 
-#Assign all retail companies as having "no benefits" or "benefits" based on if it is provided or not.
+--Assign all retail companies as having "no benefits" or "benefits" based on if it is provided or not.
 
 SELECT company_name,
 CASE WHEN healthcare_benefits=1 THEN 'benefits'
@@ -90,7 +90,7 @@ FROM fortune_companies
 WHERE industry = 'Retail'
 ;
 
-#Which industries have an average employee tenure of at least 5 years, and what are the average tenures?
+--Which industries have an average employee tenure of at least 5 years, and what are the average tenures?
 
 SELECT industry, ROUND(AVG(avg_employee_tenure)) as avg_tenure_years
 FROM fortune_companies
