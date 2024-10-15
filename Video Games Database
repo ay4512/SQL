@@ -1,4 +1,4 @@
-#In this SQL, I created a table about some of the video games I played previously and then inserted values into the table. 
+--In this SQL, I created a table about some of the video games I played previously and then inserted values into the table. 
 Then I created questions to analyze the statistics about selling these video games.
 
 CREATE TABLE video_games (
@@ -28,40 +28,40 @@ INSERT INTO video_games (id, name, year, developer, genre, gaming_hours, price) 
 
 SELECT * FROM video_games
 
-/What game has the highest gaming hours spent playing?/
+--What game has the highest gaming hours spent playing?
 SELECT name, MAX (gaming_hours) FROM video_games;
 
-/Order from the most expensive game to the least./
+--Order from the most expensive game to the least.
 SELECT name, price FROM video_games
 ORDER BY price desc;
 
-/What is the oldest game released?/
+--What is the oldest game released?
 SELECT name, year FROM video_games
 ORDER BY year asc
 LIMIT 1;
 
-/What is the most new game played?/
+--What is the most new game played?
 SELECT name, year FROM video_games
 ORDER BY year desc
 LIMIT 1;
 
-/Name the games developed by Nintendo./
+--Name the games developed by Nintendo.
 SELECT DISTINCT name FROM video_games
 WHERE developer = "Nintendo";
 
-/What is the average hours spent gaming?/
+--What is the average hours spent gaming?
 SELECT AVG(gaming_hours) FROM video_games;
 
-/What is the total hours spent gaming?/
+--What is the total hours spent gaming?
 SELECT SUM(gaming_hours) AS total_gaming_hours FROM video_games;
 
-/Name the different types of developers./
+--Name the different types of developers.
 SELECT DISTINCT developer FROM video_games;
 
-/What are the different types of genre?/
+--What are the different types of genre?
 SELECT DISTINCT genre FROM video_games;
 
-/How many games have each developer made, and what is the total earnings of each developer?/
+--How many games have each developer made, and what is the total earnings of each developer?
 SELECT developer, COUNT (DISTINCT id), ROUND(SUM(price)) AS total_earnings FROM video_games
 GROUP BY developer
 ORDER BY total_earnings;
