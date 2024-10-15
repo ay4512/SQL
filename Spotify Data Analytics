@@ -1,4 +1,4 @@
-#For this project, I downloaded Spotify data from Kaggle, and then I created a table to insert the data into. 
+--For this project, I downloaded Spotify data from Kaggle, and then I created a table to insert the data into. 
 #Finally, I performed analytics on the data using SQL. 
 
 CREATE TABLE BIT_DB.Spotifydata (
@@ -21,47 +21,47 @@ tempo decimal(6,3) NOT NULL,
 duration_ms integer NOT NULL,
 time_signature integer NOT NULL);
 
-#Next I inserted the SpotifyData.csv into the table, and I explored the data and produced some questions using the following SQL. 
+-Next I inserted the SpotifyData.csv into the table, and I explored the data and produced some questions using the following SQL. 
 
-#Reference 
+--Reference 
 
 SELECT*
 FROM Spotifydata
 
-#What is the most popular song and who is the artist?
+--What is the most popular song and who is the artist?
 SELECT track_name, artist_name
 FROM BIT_DB.Spotifydata
 ORDER BY popularity desc
 LIMIT 1;
 
-#What is the longest song and what is the level of its popularity?
+--What is the longest song and what is the level of its popularity?
 SELECT track_name, popularity
 FROM BIT_DB.Spotifydata
 ORDER BY duration_ms desc
 LIMIT 1;
 
-#What are the top 3 energetic songs?
+--What are the top 3 energetic songs?
 SELECT track_name, energy
 FROM BIT_DB.Spotifydata
 ORDER BY energy desc
 LIMIT 3; 
 
-#What is the average tempo for the top 5 danceable songs?
+--What is the average tempo for the top 5 danceable songs?
 SELECT AVG (tempo)
 FROM BIT_DB.Spotifydata
 ORDER BY danceability desc
 LIMIT 5;
 
-# What artists have two or more songs in data and how many songs do each artist have?
+--What artists have two or more songs in data and how many songs do each artist have?
 SELECT artist_name, COUNT(track_name) as NumberOfSongs
 FROM BIT_DB.Spotifydata
 GROUP BY artist_name
 HAVING NumberOfSongs >= 2;
 
-#Write your own CTW with the Spotify data table. 
-#Then calculate the average popularity for the artists in the table.
-#Then, for every artist with an average popularity of 90 or above, show their name, their average popularity.
-#Then label them as a "Top Star".
+--Write your own CTW with the Spotify data table. 
+--Then calculate the average popularity for the artists in the table.
+--Then, for every artist with an average popularity of 90 or above, show their name, their average popularity.
+--Then label them as a "Top Star".
 
 WITH Average_Popularity_CTE AS (
 SELECT s.artist_name, AVG(s.popularity) as Average_popularity
