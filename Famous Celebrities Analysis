@@ -1,4 +1,4 @@
-# In this SQL, I created multiple tables with small sets for famous celebrities with facts about their lives.
+--In this SQL, I created multiple tables with small sets for famous celebrities with facts about their lives.
 Then I analyzed the statistics of the data and merged the tables with different types of JOINs.
 
 
@@ -76,7 +76,7 @@ INSERT INTO S_BirthMonth (Name, BirthMonth) VALUES ("Snoop Dogg", "October");
 INSERT INTO S_BirthMonth (Name, BirthMonth) VALUES ("Taylor Swift", "December");
 INSERT INTO S_BirthMonth (Name, BirthMonth) VALUES ("The Weeknd", "February");
 
-#REFERENCE 
+--REFERENCE 
 SELECT * FROM Actors;
 SELECT * FROM Singers;
 SELECT * FROM A_Hobby;
@@ -86,31 +86,31 @@ SELECT * FROM S_Kids;
 SELECT * FROM A_BirthMonth;
 SELECT * FROM S_BirthMonth;
 
-#Create an Implicit INNER JOIN between the Actors and their Hobby tables.
+--Create an Implicit INNER JOIN between the Actors and their Hobby tables.
 SELECT * FROM Actors, A_Hobby
 WHERE Actors.Name = A_Hobby.Name;
 
-#Create an Explicit INNER JOIN between the Actors and their Kids tables. 
+--Create an Explicit INNER JOIN between the Actors and their Kids tables. 
 SELECT Actors.Name, Actors.Spouse, A_Kids.Kids, Actors.Movie_Title
 FROM Actors
 JOIN A_Kids
 ON Actors.Name = A_Kids.Name;
 
-#What Actors have 3 or more children?
+--What Actors have 3 or more children?
 SELECT Actors.Name, A_Kids.Kids
 FROM Actors
 JOIN A_Kids
 ON Actors.Name = A_Kids.Name
 WHERE A_Kids.Kids > 3;
 
-#What Singers have children?
+--What Singers have children?
 SELECT Singers.Name, S_Kids.Kids
 FROM Singers 
 LEFT OUTER JOIN S_Kids
 ON Singers.Name = S_Kids.Name
 WHERE S_Kids.Kids > 0;
 
-#Display all information regarding the Actors in a table.
+--Display all information regarding the Actors in a table.
 SELECT A.Name, A.Movie_Title, A.Spouse, A_K.Kids, A_H.Hobby, A_B.BirthMonth
 FROM Actors A
 JOIN A_Kids A_K
@@ -121,7 +121,7 @@ JOIN A_BirthMonth A_B
 ON A.Name = A_B.Name;
 
 
-#Display all information regarding the Singers in a table.
+--Display all information regarding the Singers in a table.
 SELECT S.Name, S.Song_Title, S.Origin, S_K.Kids, S_H.Hobby, S_B.BirthMonth
 FROM Singers S
 JOIN S_Kids S_K
@@ -131,7 +131,7 @@ ON S.Name = S_H.Name
 JOIN S_BirthMonth S_B
 ON S.Name = S_B.Name;
 
-#Combine the birthmonth tables of the celebrities using UNION.
+--Combine the birthmonth tables of the celebrities using UNION.
 SELECT A.Name, A.BirthMonth
 FROM A_BirthMonth A
 UNION 
@@ -139,7 +139,7 @@ SELECT S.Name, S.BirthMonth
 FROM S_BirthMonth S
 ORDER BY BirthMonth;
 
-#What celebrities have children?
+--What celebrities have children?
 SELECT A.Name, A.Kids
 FROM A_Kids A
 UNION 
