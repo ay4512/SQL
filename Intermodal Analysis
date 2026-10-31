@@ -1,0 +1,243 @@
+CREATE DATABASE LogisticsPortfolio;
+SELECT*
+FROM dbo.LogisticsDataset;
+
+--What rail line had the most issues with refused shipments?--
+SELECT RailLine,COUNT(*) AS TotalLoads,
+	SUM(CASE WHEN ShipmentStatus = 'Delivered' THEN 1 
+	ELSE 0 END) AS DeliveredLoads,
+	SUM(CASE WHEN ShipmentStatus = 'Refused' THEN 1
+	ELSE 0 END) AS RefusedLoads,
+	CAST(100.0 * SUM(CASE WHEN ShipmentStatus = 'Refused'
+			THEN 1 ELSE 0 END) / NULLIF(COUNT(*),0)
+		AS DECIMAL(5,2)) AS RefusalRate
+FROM dbo.LogisticsDataset
+GROUP BY RailLine
+ORDER BY RefusalRate DESC;
+
+--What rail line had the most dwell days on their shipments?--
+SELECT
+    RailLine,
+    COUNT(*) AS TotalShipments,
+    SUM(RailDwell) AS TotalDwell,
+    CAST(
+        AVG(CAST(RailDwell AS DECIMAL(10,2)))
+        AS DECIMAL(10,2)) AS AverageDwell,
+    MIN(RailDwell) AS MinimumDwell,
+    MAX(RailDwell) AS MaximumDwell,
+    SUM(CASE WHEN RailDwell = 0 THEN 1 ELSE 0 END)
+        AS ZeroDwellDays,
+    SUM(CASE WHEN MissedAppointment = 1 OR ShipmentStatus = 'Refused' THEN 1
+        ELSE 0 END) AS IssueShipments
+FROM dbo.LogisticsDataset
+GROUP BY RailLine
+ORDER BY IssueShipments DESC;
+
+--What rail line had the highest percentage of problem shipments?--
+WITH RailLineIssues AS (
+    SELECT 
+        RailLine, 
+        COUNT(*) AS TotalShipments,
+        SUM(CASE WHEN MissedAppointment = 1 OR ShipmentStatus = 'Refused' THEN 1 
+        ELSE 0 END) AS IssueShipments
+    FROM dbo.LogisticsDataset
+    GROUP BY RailLine
+)
+SELECT RailLine, TotalShipments, IssueShipments,
+        CAST(100.00 * IssueShipments / NULLIF(TotalShipments,0) AS DECIMAL (5,0)) AS IssueLoadRates
+    FROM RailLineIssues
+    ORDER BY IssueLoadRates DESC;
+
+--WHat customers refused their shipments?--
+SELECT Customer, 
+    SUM(CASE WHEN ShipmentStatus = 'Refused' THEN 1 ELSE 0 END) AS RefusedLoads
+FROM dbo.LogisticsDataset
+GROUP BY Customer
+ORDER BY RefusedLoads DESC;
+
+--What customers are making a profit and which are not?--
+SELECT 
+    Customer, 
+    SUM(Revenue) / 1000 AS RevenueThousands,
+    SUM(TotalCost + StorageCharges) / 1000 AS CostThousands,
+    SUM(Revenue - TotalCost - StorageCharges) / 1000 AS ProfitThousands
+ FROM dbo.LogisticsDataset
+ GROUP BY Customer
+ ORDER BY ProfitThousands ASC;
+
+--What are the profit margins for the customers?--
+SELECT 
+    Customer,
+    CAST (100 * SUM(Revenue - TotalCost - StorageCharges) 
+        / NULLIF(SUM(Revenue), 0) AS DECIMAL (10,2)) AS ProfitMarginPct
+FROM dbo.LogisticsDataset
+GROUP BY Customer
+ORDER BY ProfitMarginPct DESC;
+
+--What are the average profit per shipment?--
+SELECT
+    Customer, 
+    COUNT(*) AS TotalShipments,
+    CAST(MAX(Revenue - TotalCost - StorageCharges) AS DECIMAL(10,0)) AS MaxProfit,
+    CAST(MIN(Revenue - TotalCost - StorageCharges) AS DECIMAL(10,0)) AS MinProfit,
+    CAST(AVG(Revenue - TotalCost - StorageCharges) AS DECIMAL(10,2)) AS ProfitAvg
+FROM dbo.LogisticsDataset
+GROUP BY Customer
+ORDER BY ProfitAvg DESC;
+
+--How much cost is associated with refused shipments?--
+SELECT 
+    Customer,
+    SUM(CASE WHEN ShipmentStatus = 'Refused' THEN 1 ELSE 0 END) AS RefusedLoads,
+    CAST(SUM(CASE WHEN ShipmentStatus = 'Refused' THEN TotalCost + StorageCharges ELSE 0 END)
+        / 1000 AS DECIMAL (10,2)) AS RefusedCostsThous
+FROM dbo.LogisticsDataset
+GROUP BY Customer
+ORDER BY RefusedCostsThous DESC;
+
+--What routes have high costs relative to revenue?--
+SELECT
+    OriginRamp,
+    DestinationRamp,
+    COUNT(*) AS TotalShipments,
+    CAST(SUM(Revenue) / 1000 AS DECIMAL (10,2)) AS TotalRevenueByThous,
+    CAST(SUM(TotalCost + StorageCharges) / 1000 AS DECIMAL (10,2)) AS TotalCostsbyThous,
+    CAST(SUM(Revenue - TotalCost - StorageCharges) / 1000 AS DECIMAL (10,2)) AS TotalProfitByThous,
+    CAST(100 * SUM(TotalCost + StorageCharges)
+        / NULLIF(SUM(Revenue),0) AS DECIMAL (10,2)) AS CostToRevenuePct
+FROM dbo.LogisticsDataset
+GROUP BY OriginRamp,DestinationRamp
+ORDER BY CostToRevenuePct DESC;
+
+--What exceptions are associated high storage costs?--
+SELECT
+    ExceptionType,
+    COUNT(*) AS TotalExceptions,
+    CAST(SUM(StorageCharges) AS DECIMAL (10,0)) AS TotalStorageCosts,
+    CAST(AVG(StorageCharges) AS DECIMAL (10,0)) AS AvgStorageCosts
+FROM dbo.LogisticsDataset
+WHERE ExceptionType IS NOT NULL
+GROUP BY ExceptionType
+ORDER BY AvgStorageCosts DESC;
+
+--What drivers had the most issues with missed deliveries and redeliveries?--
+WITH DriverIssues AS (
+    SELECT
+        DriverID,
+        COUNT(*) AS TotalShipments,
+        SUM(CAST(ReDelivery AS INT)) AS ReDeliveries,
+        SUM(CAST(MissedAppointment AS INT)) AS Misses,
+        SUM(CASE WHEN ReDelivery = 1 OR MissedAppointment = 1 THEN 1 ELSE 0 END) AS DeliveryIssues
+    FROM dbo.LogisticsDataset
+    GROUP BY DriverID)
+SELECT
+    DriverID,
+    TotalShipments,
+    ReDeliveries,
+    Misses,
+    DeliveryIssues,
+    CAST(100.00 * DeliveryIssues / NULLIF(TotalShipments,0) AS DECIMAL (5,2)) AS IssuePctRate
+FROM DriverIssues
+ORDER BY IssuePctRate DESC;
+
+--What are the profit differences between rail lines?--
+SELECT 
+    RailLine,
+    COUNT(*) AS TotalShipments,
+    CAST(SUM(Revenue) / 1000 AS DECIMAL (10,2)) AS TotalRevenueByThous,
+    CAST(SUM(TotalCost + StorageCharges) / 1000 AS DECIMAL (10,2)) AS TotalCostByThous,
+    CAST(AVG(Revenue - TotalCost - StorageCharges) AS DECIMAL (10,2)) AS AvgProfit,
+    CAST(SUM(Revenue - TotalCost - StorageCharges) / 1000 AS DECIMAL (10,2)) AS TotalProfitByThous
+FROM dbo.LogisticsDataset
+GROUP BY RailLine
+ORDER BY TotalProfitByThous DESC;
+
+--What are the average customer scores?--
+SELECT 
+    Customer,
+    CustomerSatisfaction,
+    COUNT(*) As RatingTotals
+FROM dbo.LogisticsDataset
+GROUP BY Customer, CustomerSatisfaction
+ORDER BY Customer, CustomerSatisfaction;
+
+SELECT
+    Customer, 
+    COUNT(*) AS TotalRating,
+    CAST(AVG(CAST(CustomerSatisfaction AS DECIMAL(10,2))) AS DECIMAL(10,2)) AS AvgRating
+FROM dbo.LogisticsDataset
+GROUP BY Customer
+ORDER BY AvgRating DESC;
+
+--What operational issues might be associated with low customer satisfaction?--
+SELECT
+    ExceptionType,
+    COUNT(*) AS TotalIssues,
+    CAST(AVG(CAST(CustomerSatisfaction AS DECIMAL(5,2))) AS DECIMAL(5,2)) AS AvgRating,
+    MIN(CustomerSatisfaction) AS RatingMin,
+    MAX(CustomerSatisfaction) AS RatingMAX
+FROM dbo.LogisticsDataset
+WHERE ExceptionType IS NOT NULL
+GROUP BY ExceptionType
+ORDER BY AvgRating DESC;
+--Inlcude Null results too to avoid bias--
+SELECT
+    CASE WHEN ExceptionType IS NULL THEN 'No Exception' ELSE 'Has Exception' END AS ExceptionCategory,
+    COUNT(*) AS TotalShipments,
+    CAST(AVG(CAST(CustomerSatisfaction AS DECIMAL(5,2))) AS DECIMAL(5,2)) AS AvgRating
+FROM dbo.LogisticsDataset
+GROUP BY 
+    CASE WHEN ExceptionType IS NULL THEN 'No Exception' ELSE 'Has Exception' END
+ORDER BY AvgRating DESC;
+
+--What is satisfaction score based on shipment status?--
+SELECT
+    ShipmentStatus,
+    COUNT(*) AS TotalShipments,
+    CAST(AVG(CAST(CustomerSatisfaction AS DECIMAL(5,2))) AS DECIMAL(5,2)) AS AvgRating
+FROM dbo.LogisticsDataset
+GROUP BY ShipmentStatus
+ORDER BY AvgRating DESC
+
+--What are the appointment completion rates by routes?--
+WITH CompletionRate AS ( 
+    SELECT
+        OriginRamp,
+        DestinationRamp, 
+        COUNT(*) AS TotalShipments,
+        SUM(CASE WHEN AppointmentStatus = 'Completed' THEN 1 ELSE 0 END) AS DeliveredLoads
+    FROM dbo.LogisticsDataset
+    GROUP BY OriginRamp, DestinationRamp)
+SELECT 
+    OriginRamp,
+    DestinationRamp, 
+    TotalShipments,
+    DeliveredLoads,
+    TotalShipments - DeliveredLoads AS PendingLoads,
+    CAST(100.00 * DeliveredLoads / NULLIF(TotalShipments,0) AS DECIMAL(5,2)) AS CompletionPct
+FROM CompletionRate
+ORDER BY CompletionPct ASC;
+
+--What are the customer satisfaction on routes?--
+SELECT
+    OriginRamp,
+    DestinationRamp,
+    COUNT(*) AS TotalShipments,
+    CAST(AVG(CAST(CustomerSatisfaction AS DECIMAL(5,2))) AS DECIMAL(5,2)) AS AvgRating
+FROM dbo.LogisticsDataset
+GROUP BY OriginRamp, DestinationRamp
+ORDER BY AvgRating ASC;
+
+--What routes have the most performance problems?
+SELECT
+    OriginRamp,
+    DestinationRamp,
+    COUNT(*) AS TotalShipments, 
+    CAST(100.00 * SUM(CASE WHEN AppointmentStatus = 'Completed' THEN 1 ELSE 0 END) 
+        / NULLIF(COUNT(*),0) AS DECIMAL (5,2)) AS CompletionRate,
+    CAST(AVG(CAST(CustomerSatisfaction AS DECIMAL(5,2))) AS DECIMAL (5,2)) AS AvgRating,
+    CAST(SUM(Revenue - TotalCost - StorageCharges) / 1000 AS DECIMAL (10,2)) AS TotalProfitThous,
+    CAST(SUM(StorageCharges) / 1000 AS DECIMAL (10,2)) AS StorageCostThous
+FROM dbo.LogisticsDataset
+GROUP BY OriginRamp, DestinationRamp
+ORDER BY TotalProfitThous ASC;
