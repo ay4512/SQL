@@ -1,5 +1,9 @@
-CREATE DATABASE LogisticsPortfolio;
+--I created a dataset in EXCEL with synthetic information based on my previous experience in logistics.--
+--In this SQL analysis, I am looking into improving service performance, operation efficiency,--
+--and profitability for this fictional logistics company.-- 
 
+CREATE DATABASE LogisticsPortfolio;
+--Reference--
 SELECT*
 FROM dbo.LogisticsDataset;
 
@@ -12,9 +16,7 @@ SELECT
 	ELSE 0 END) AS DeliveredLoads,
 	SUM(CASE WHEN ShipmentStatus = 'Refused' THEN 1
 	ELSE 0 END) AS RefusedLoads,
-	CAST(100.0 * SUM(CASE WHEN ShipmentStatus = 'Refused'
-			THEN 1 ELSE 0 END) / NULLIF(COUNT(*),0)
-		AS DECIMAL(5,2)) AS RefusalPct
+	CAST(100.0 * SUM(CASE WHEN ShipmentStatus = 'Refused' THEN 1 ELSE 0 END) / NULLIF(COUNT(*),0) AS DECIMAL(5,2)) AS RefusalPct
 FROM dbo.LogisticsDataset
 GROUP BY RailLine
 ORDER BY RefusalPct DESC;
@@ -25,25 +27,21 @@ SELECT
     COUNT(*) AS TotalShipments,
     SUM(RailDwell) AS TotalDwell,
     CAST(
-        AVG(CAST(RailDwell AS DECIMAL(10,2)))
-        AS DECIMAL(10,2)) AS AvgDwell,
+        AVG(CAST(RailDwell AS DECIMAL(10,2))) AS DECIMAL(10,2)) AS AvgDwell,
     MIN(RailDwell) AS MinDwell,
     MAX(RailDwell) AS MaxDwell,
-    SUM(CASE WHEN RailDwell = 0 THEN 1 ELSE 0 END)
-        AS ZeroDwellDays,
-    SUM(CASE WHEN MissedAppointment = 1 OR ShipmentStatus = 'Refused' THEN 1
-        ELSE 0 END) AS IssueShipments
+    SUM(CASE WHEN RailDwell = 0 THEN 1 ELSE 0 END) AS ZeroDwellDays,
+    SUM(CASE WHEN MissedAppointment = 1 OR ShipmentStatus = 'Refused' THEN 1 ELSE 0 END) AS IssueShipments
 FROM dbo.LogisticsDataset
 GROUP BY RailLine
-ORDER BY TotalDwell DESC;
+ORDER BY AvgDwell DESC;
 
 --What rail line had the highest percentage of problem shipments?--
 WITH RailLineIssues AS (
     SELECT 
         RailLine, 
         COUNT(*) AS TotalShipments,
-        SUM(CASE WHEN MissedAppointment = 1 OR ShipmentStatus = 'Refused' THEN 1 
-        ELSE 0 END) AS IssueShipments
+        SUM(CASE WHEN MissedAppointment = 1 OR ShipmentStatus = 'Refused' THEN 1 ELSE 0 END) AS IssueShipments
     FROM dbo.LogisticsDataset
     GROUP BY RailLine
 )
@@ -67,8 +65,11 @@ FROM dbo.LogisticsDataset
 GROUP BY RailLine
 ORDER BY TotalProfitByThous DESC;
 
---Customer Profitability--
+--To conclude, the UP rail line appears to have the best performance with 0% refusal rate, relatively low dwell, fewer shipment issues, and strong total profitability.--
+--The NS rail line should be investigated further due to its higher refusal rate on shipments to improve rail service reliability and reduce costs.--
+--The CN Rail also has room for improvement. With the higher average dwell days and shipment issues, investigations need to focus on the causes of the delays to improve the rail performances.--
 
+--Customer Profitability--
 --What are the number of refused loads per customer?--
 WITH RefusedShipments AS (
     SELECT
@@ -126,8 +127,12 @@ FROM dbo.LogisticsDataset
 GROUP BY Customer
 ORDER BY RefusedCostsThous DESC;
 
---Route Performance--
+--In conclusion, ABC HVAC appears to be the least profitable customer with approximately $24,000 in negative adjusted proit.--
+--They also have negative profit margin showing that the total costs and storage charges are surpassing their revenue.--
+--They also have the highest number of refused shipments and costs associated with those refusals.--
+--Further investigation is recommended to identify their problems root causes and improve profitability and dissatisaction with the logistics company.--
 
+--Route Performance--
 --What routes have high costs relative to revenue?--
 SELECT
     OriginRamp,
@@ -186,8 +191,15 @@ FROM dbo.LogisticsDataset
 GROUP BY OriginRamp, DestinationRamp
 ORDER BY TotalProfitThous ASC;
 
---Driver Performance-- 
+--Based on the dataset, Tacoma to Minneapolis and Houston to Memphis have the highest cost-to-revenue percentages.--
+--These routes need to be look into to determine what exactly is affecting their profitability.--
+--Nashville to Birmingham has a low appointment completion rate revealing potential reliability issues with deliveries.--
+--Investigation needs to be done to see why shipmients are not being completed as scheduled.--
+--Tacoma to Minneapolis also has low customer satisfaction and approximately $13,000 in negative profitability.--
+--This needs to be priority to investigate with the issues associated with the route.--
+--Investigations need to be done to find the underlying delays to improve route service and profitability.--
 
+--Driver Performance-- 
 --What drivers had the most issues with missed deliveries and redeliveries?--
 WITH DriverIssues AS (
     SELECT
@@ -206,7 +218,7 @@ SELECT
     DeliveryIssues,
     CAST(100.00 * DeliveryIssues / NULLIF(TotalShipments,0) AS DECIMAL (5,2)) AS IssuePctRate
 FROM DriverIssues
-ORDER BY IssuePctRate DESC;.
+ORDER BY IssuePctRate DESC;
 
 --Which drivers have the most redelivery costs?
 SELECT
@@ -241,7 +253,7 @@ FROM dbo.LogisticsDataset
 GROUP BY DriverID
 ORDER BY RefusalRatePct DESC;
 
---Which drivers generate the most profit?--
+--Which drivers generate the lowest profit?--
 SELECT
     DriverID,
     COUNT(*) AS TotalShipments, 
@@ -249,10 +261,19 @@ SELECT
     CAST(AVG(Revenue - TotalCost - StorageCharges) AS DECIMAL(10,2)) AS AvgProfit
 FROM dbo.LogisticsDataset
 GROUP BY DriverID
-ORDER BY TotalProfitThous DESC;
+ORDER BY TotalProfitThous ASC;
+
+--To conclude, driver AKLG has a high percentage of missed appointments and redeliveries. Investigation should focus on--
+--the specifics on the delays for this driver to identify if the issues are on the routes or operational exceptions.--
+--Driver SEFT has high storage costs assocated with redeliveries, so the company needs to look into whether the costs---
+--are related to the driver or other conditions to lower costs.--
+--Driver TDYR should be a priority for investigating due to several areas of concern with lower customer satisfaction scores,--
+--refused loads, and negative shipment profitability. Investigation needs to focus on identify opportunitities for improvement.--
+--Driver MAXD has the lowest average profit of approximately negative $1,046 per shipment, which shows costs are--
+--exceeding the shipments' revenue on average. Thus and investigation needs to be done to identify what exactly is--
+--contributing to these losses.--
 
 --Customer Satisfaction--
-
 --What are the average customer scores?--
 SELECT
     Customer, 
@@ -268,7 +289,6 @@ SELECT
 FROM dbo.LogisticsDataset
 GROUP BY Customer, CustomerSatisfaction
 ORDER BY Customer, CustomerSatisfaction;
-
 
 --What operational issues might be associated with low customer satisfaction?--
 SELECT
@@ -309,3 +329,13 @@ SELECT
 FROM dbo.LogisticsDataset
 GROUP BY OriginRamp, DestinationRamp
 ORDER BY AvgRating ASC;
+
+--Finally, ABC HVAC has the lowest average customer satisfaction rating, which is supported by the earlier queries.--
+--It is highly recommended that their issues are investigated to improve the challenges they are experiencing.--
+--Shipments with driver-related exceptions have the lowest average ratings. Shipments without exceptions average--
+--approximately 4.5 scores, compated with approximately 2.4 for shipments with an exception recorded.--
+--There is a strong association between exceptions and lower customer satisfaction.--
+--Shipment statuses appear to have a strong relationship with customer satisfaction scores. Refused loads average--
+--approximately 1.1, compared with approximately 3.9 for delivered shipments.--
+--Nashville to Birmingham has the lowest average customer satisfaction among the routes. Further investigation--
+--into the operational delays is recommended to identify the potential causes of poor customer scores and experience.--
